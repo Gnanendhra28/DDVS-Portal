@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DDVS — Digital Document Verification System</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* ── HERO ── */
+      .hero {
+        background: linear-gradient(
+          150deg,
+          var(--navy) 0%,
+          #0e2448 60%,
+          var(--blue) 100%
+        );
+        padding: 80px 24px 100px;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 60px,
+            rgba(255, 255, 255, 0.015) 60px,
+            rgba(255, 255, 255, 0.015) 61px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 60px,
+            rgba(255, 255, 255, 0.015) 60px,
+            rgba(255, 255, 255, 0.015) 61px
+          );
+      }
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(200, 153, 58, 0.15);
+        border: 1px solid rgba(200, 153, 58, 0.4);
+        border-radius: 20px;
+        padding: 6px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent-light);
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+      }
+      .hero-badge-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--accent-light);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      .hero-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 60px;
+        align-items: center;
+        position: relative;
+      }
+      .hero h1 {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 52px;
+        font-weight: 700;
+        line-height: 1.1;
+        color: var(--white);
+        margin-bottom: 20px;
+      }
+      .hero h1 em {
+        font-style: normal;
+        color: var(--accent-light);
+      }
+      .hero p {
+        font-size: 17px;
+        color: rgba(255, 255, 255, 0.72);
+        max-width: 520px;
+        line-height: 1.75;
+        margin-bottom: 36px;
+      }
+      .hero-actions {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 48px;
+        padding-top: 40px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .hero-stat-val {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--accent-light);
+      }
+      .hero-stat-label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.55);
+        margin-top: 2px;
+      }
+
+      /* HERO VISUAL */
+      .hero-visual {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 28px;
+        backdrop-filter: blur(8px);
+      }
+      .hero-visual-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .hero-visual-icon {
+        width: 44px;
+        height: 44px;
+        background: var(--accent);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+      .hero-visual-title {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--white);
+      }
+      .hero-visual-sub {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .doc-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 10px;
+      }
+      .doc-icon {
+        font-size: 22px;
+      }
+      .doc-name {
+        font-size: 14px;
+        color: var(--white);
+        font-weight: 500;
+      }
+      .doc-meta {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.45);
+      }
+      .doc-status {
+        margin-left: auto;
+      }
+      .track-bar {
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 6px;
+        padding: 14px 16px;
+        margin-top: 16px;
+      }
+      .track-label {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.45);
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
+      .track-steps {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .track-step {
+        height: 5px;
+        flex: 1;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+      .track-step.done {
+        background: var(--accent);
+      }
+      .track-step.active {
+        background: var(--blue-light);
+      }
+
+      /* ── FEATURES ── */
+      .features {
+        background: var(--off-white);
+      }
+      .section-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      .section-title {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 34px;
+        font-weight: 700;
+        color: var(--navy);
+        line-height: 1.2;
+      }
+      .section-subtitle {
+        font-size: 16px;
+        color: var(--gray-dark);
+        margin-top: 10px;
+        max-width: 600px;
+      }
+      .feature-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 28px;
+        border: 1px solid var(--gray-light);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+      }
+      .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow);
+        border-color: var(--blue-light);
+      }
+      .feature-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: linear-gradient(
+          135deg,
+          var(--blue) 0%,
+          var(--blue-light) 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        margin-bottom: 18px;
+      }
+      .feature-icon.accent {
+        background: linear-gradient(
+          135deg,
+          var(--accent) 0%,
+          var(--accent-light) 100%
+        );
+      }
+      .feature-icon.success {
+        background: linear-gradient(135deg, #1a7a4a 0%, #2ea866 100%);
+      }
+      .feature-card h3 {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 8px;
+      }
+      .feature-card p {
+        font-size: 14px;
+        color: var(--gray-dark);
+        line-height: 1.7;
+      }
+
+      /* ── HOW IT WORKS ── */
+      .how-it-works {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+      }
+      .step-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-top: 40px;
+      }
+      .step {
+        text-align: center;
+      }
+      .step-num {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: rgba(200, 153, 58, 0.15);
+        border: 2px solid var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Rajdhani", sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--accent-light);
+        margin: 0 auto 16px;
+      }
+      .step h4 {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--white);
+        margin-bottom: 8px;
+      }
+      .step p {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.6;
+      }
+      .step-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 28px;
+        color: var(--accent);
+        font-size: 20px;
+      }
+
+      /* ── SERVICES ── */
+      .service-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 20px;
+        border-radius: var(--radius);
+        background: var(--white);
+        border: 1px solid var(--gray-light);
+        transition: var(--transition);
+        cursor: pointer;
+      }
+      .service-item:hover {
+        border-color: var(--blue-mid);
+        box-shadow: var(--shadow-sm);
+      }
+      .service-emoji {
+        font-size: 26px;
+      }
+      .service-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .service-desc {
+        font-size: 12px;
+        color: var(--gray-dark);
+        margin-top: 1px;
+      }
+      .service-arrow {
+        margin-left: auto;
+        color: var(--blue-mid);
+        font-size: 16px;
+      }
+
+      /* ── CTA ── */
+      .cta-section {
+        background: var(--accent);
+        padding: 60px 24px;
+        text-align: center;
+      }
+      .cta-section h2 {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--navy);
+      }
+      .cta-section p {
+        font-size: 16px;
+        color: rgba(10, 22, 40, 0.72);
+        margin-top: 10px;
+      }
+      .cta-section .btn {
+        margin-top: 28px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAV -->
+    <nav>
+      <div class="nav-inner">
+        <a href="index.html" class="nav-brand">
+          <div class="nav-emblem">🇮🇳</div>
+          <div>
+            <div class="nav-title">DDVS Portal</div>
+            <div class="nav-subtitle">Digital Document Verification System</div>
+          </div>
+        </a>
+        <ul class="nav-links">
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="submit.html">Submit Documents</a></li>
+          <li><a href="track.html">Track Status</a></li>
+          <li><a href="dashboard.html">Admin Dashboard</a></li>
+          <li><a href="login.html" class="btn-nav">Login / Register</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div>
+          <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            Government of India — Digital India Initiative
+          </div>
+          <h1>
+            Fast, Secure &<br /><em>Paperless</em><br />Document Verification
+          </h1>
+          <p>
+            Submit, track, and receive government document approvals online — no
+            more standing in queues. Your Village/Ward Secretariat, digitized.
+          </p>
+          <div class="hero-actions">
+            <a href="submit.html" class="btn btn-accent btn-lg"
+              >📄 Submit Documents</a
+            >
+            <a href="track.html" class="btn btn-white btn-lg"
+              >🔍 Track My Application</a
+            >
+          </div>
+          <div class="hero-stats">
+            <div>
+              <div class="hero-stat-val">12,400+</div>
+              <div class="hero-stat-label">Documents Verified</div>
+            </div>
+            <div>
+              <div class="hero-stat-val">98.2%</div>
+              <div class="hero-stat-label">Accuracy Rate</div>
+            </div>
+            <div>
+              <div class="hero-stat-val">24 hrs</div>
+              <div class="hero-stat-label">Avg. Turnaround</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <!-- HEADER -->
+
+          <div class="hero-visual-header">
+            <div class="hero-visual-icon">📋</div>
+
+            <div>
+              <div class="hero-visual-title">Application Dashboard</div>
+
+              <div class="hero-visual-sub">Ward Secretariat Portal</div>
+            </div>
+          </div>
+
+          <!-- LIVE APPLICATIONS -->
+
+          <div id="dashboardApplications"></div>
+
+          <!-- EMPTY MESSAGE -->
+
+          <div
+            id="dashboardEmpty"
+            style="
+              display: none;
+              text-align: center;
+              padding: 30px;
+              color: rgba(255, 255, 255, 0.6);
+              font-size: 14px;
+            "
+          >
+            No applications submitted yet.
+          </div>
+
+          <!-- TRACK BAR -->
+
+          <div class="track-bar">
+            <div class="track-label">Live Application Tracking</div>
+
+            <div class="track-steps">
+              <div class="track-step done"></div>
+
+              <div class="track-step done"></div>
+
+              <div class="track-step active"></div>
+
+              <div class="track-step"></div>
+
+              <div class="track-step"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features section">
+      <div class="container">
+        <div class="text-center mb-3">
+          <div class="section-label">Why Choose DDVS</div>
+          <div class="section-title">
+            Everything You Need,<br />In One Place
+          </div>
+          <p class="section-subtitle" style="margin: 10px auto 0">
+            A complete digital platform replacing manual paperwork with secure,
+            transparent, and fast processing.
+          </p>
+        </div>
+        <div class="grid-3 mt-4">
+          <div class="feature-card">
+            <div class="feature-icon">🔐</div>
+            <h3>Secure Verification</h3>
+            <p>
+              All submitted documents undergo multi-layer digital verification
+              with tamper-proof audit trails and unique application IDs.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon accent">⚡</div>
+            <h3>Fast Processing</h3>
+            <p>
+              Applications are processed digitally within 24 hours instead of
+              weeks. No more physical visits for routine certificates.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon success">📲</div>
+            <h3>Real-Time Tracking</h3>
+            <p>
+              Citizens receive SMS and portal notifications at every step —
+              submitted, under review, approved or rejected with reasons.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Admin Dashboard</h3>
+            <p>
+              Officers get a centralized view of all pending applications,
+              enabling efficient queue management and accountability.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon accent">🏛️</div>
+            <h3>Multi-Department</h3>
+            <p>
+              Supports certificates across Revenue, MRO, Village Secretariat,
+              Ward offices — all under one unified portal.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon success">🌿</div>
+            <h3>Paperless & Green</h3>
+            <p>
+              Eliminate physical forms, reduce storage costs, and contribute to
+              a sustainable e-governance ecosystem.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-it-works section">
+      <div class="container">
+        <div class="text-center mb-2">
+          <div class="section-label" style="color: var(--accent-light)">
+            How It Works
+          </div>
+          <div class="section-title" style="color: var(--white)">
+            Simple 4-Step Process
+          </div>
+        </div>
+        <div class="step-grid">
+          <div class="step">
+            <div class="step-num">1</div>
+            <h4>Register &amp; Login</h4>
+            <p>
+              Create your citizen account with Aadhaar-linked mobile number for
+              secure access.
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <h4>Submit Documents</h4>
+            <p>
+              Fill the application form, upload required documents and photos
+              digitally.
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <h4>Officer Review</h4>
+            <p>
+              Designated officer verifies documents and either approves or
+              requests corrections.
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <h4>Download Certificate</h4>
+            <p>
+              Receive digitally signed certificate via portal and SMS upon
+              approval.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section" style="background: var(--white)">
+      <div class="container">
+        <div class="section-label">Available Services</div>
+        <div class="section-title mb-3">Documents You Can Apply For</div>
+        <div class="grid-2" style="gap: 12px">
+          <div class="service-item">
+            <span class="service-emoji">📋</span>
+            <div>
+              <div class="service-name">Income Certificate</div>
+              <div class="service-desc">
+                For scholarships, welfare schemes & bank loans
+              </div>
+            </div>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-item">
+            <span class="service-emoji">🏠</span>
+            <div>
+              <div class="service-name">Residence / Domicile Certificate</div>
+              <div class="service-desc">
+                Proof of local residence for official purposes
+              </div>
+            </div>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-item">
+            <span class="service-emoji">🎓</span>
+            <div>
+              <div class="service-name">Caste Certificate (SC/ST/OBC)</div>
+              <div class="service-desc">
+                Required for reservations & government benefits
+              </div>
+            </div>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-item">
+            <span class="service-emoji">👤</span>
+            <div>
+              <div class="service-name">Social Status Certificate</div>
+              <div class="service-desc">EWS & other social category proof</div>
+            </div>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-item">
+            <span class="service-emoji">🌾</span>
+            <div>
+              <div class="service-name">Agricultural Land Records</div>
+              <div class="service-desc">
+                Patta / Adangal / Land ownership documents
+              </div>
+            </div>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-item">
+            <span class="service-emoji">🏥</span>
+            <div>
+              <div class="service-name">Disability Certificate</div>
+              <div class="service-desc">
+                For welfare schemes, assistive equipment
+              </div>
+            </div>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-item">
+            <span class="service-emoji">🧓</span>
+            <div>
+              <div class="service-name">Senior Citizen Certificate</div>
+              <div class="service-desc">
+                For pension, concessions & travel benefits
+              </div>
+            </div>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-item">
+            <span class="service-emoji">⚡</span>
+            <div>
+              <div class="service-name">Ration Card Services</div>
+              <div class="service-desc">
+                New application, corrections & transfers
+              </div>
+            </div>
+            <span class="service-arrow">→</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="container">
+        <h2>Ready to Go Paperless?</h2>
+        <p>
+          Register now and experience government services from the comfort of
+          your home.
+        </p>
+        <div
+          style="
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 28px;
+          "
+        >
+          <a href="login.html" class="btn btn-primary btn-lg"
+            >Create Admin Account</a
+          >
+          <a href="track.html" class="btn btn-outline btn-lg"
+            >Track Existing Application</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <div class="nav-brand" style="margin-bottom: 8px">
+              <div class="nav-emblem">🇮🇳</div>
+              <div>
+                <div class="nav-title">DDVS Portal</div>
+                <div class="nav-subtitle">
+                  Digital Document Verification System
+                </div>
+              </div>
+            </div>
+            <p>
+              An initiative under Digital India, Ministry of Electronics & IT.
+              Providing e-governance services to citizens at village and ward
+              level.
+            </p>
+          </div>
+          <div class="footer-col">
+            <h4>Services</h4>
+            <ul>
+              <li><a href="#">Income Certificate</a></li>
+              <li><a href="#">Caste Certificate</a></li>
+              <li><a href="#">Residence Certificate</a></li>
+              <li><a href="#">Land Records</a></li>
+              <li><a href="#">All Services</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="login.html">Citizen Login</a></li>
+              <li><a href="submit.html">Submit Documents</a></li>
+              <li><a href="track.html">Track Application</a></li>
+              <li><a href="dashboard.html">Admin Portal</a></li>
+              <li><a href="#">Help & FAQs</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Helpdesk: 1800-XXX-XXXX</a></li>
+              <li><a href="#">support@ddvs.gov.in</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Use</a></li>
+              <li><a href="#">Accessibility</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span
+            >© 2026 Digital Document Verification System | Government of
+            India</span
+          >
+          <span>Best viewed in Chrome / Firefox · Last Updated: Dec 2026</span>
+        </div>
+      </div>
+    </footer>
+    <script type="module">
+      /* =========================
+     IMPORT FIREBASE
+  ========================= */
+
+      import { db } from "./firebase.js";
+
+      import {
+        collection,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      /* =========================
+     LIVE APPLICATION DASHBOARD
+  ========================= */
+
+      async function loadDashboard() {
+        // GET ELEMENTS
+
+        const dashboard = document.getElementById("dashboardApplications");
+
+        const empty = document.getElementById("dashboardEmpty");
+
+        dashboard.innerHTML = "";
+
+        // GET FIREBASE DATA
+
+        const querySnapshot = await getDocs(collection(db, "applications"));
+
+        let applications = [];
+
+        querySnapshot.forEach((docData) => {
+          applications.push(docData.data());
+        });
+
+        // EMPTY STATE
+
+        if (applications.length === 0) {
+          empty.style.display = "block";
+
+          return;
+        }
+
+        empty.style.display = "none";
+
+        // SHOW LATEST 3 APPLICATIONS
+
+        const latestApps = applications.slice(-3).reverse();
+
+        latestApps.forEach((app) => {
+          /* =========================
+         STATUS
+      ========================= */
+
+          let badgeClass = "badge-info";
+
+          let badgeText = "🔍 Review";
+
+          if (app.status === "Approved") {
+            badgeClass = "badge-success";
+
+            badgeText = "✓ Approved";
+          } else if (app.status === "Rejected") {
+            badgeClass = "badge-danger";
+
+            badgeText = "✕ Rejected";
+          } else if (app.status === "Pending") {
+            badgeClass = "badge-warning";
+
+            badgeText = "⏳ Pending";
+          }
+
+          /* =========================
+         DOCUMENT ICONS
+      ========================= */
+
+          let icon = "📄";
+
+          if (app.docType === "Income Certificate") {
+            icon = "🪪";
+          } else if (app.docType === "Residence Certificate") {
+            icon = "🏠";
+          } else if (app.docType === "Caste Certificate") {
+            icon = "🎓";
+          } else if (app.docType === "Land Records") {
+            icon = "🌾";
+          }
+
+          /* =========================
+         CREATE CARD
+      ========================= */
+
+          dashboard.innerHTML += `
+
+        <div class="doc-item">
+
+          <div class="doc-icon">
+            ${icon}
+          </div>
+
+          <div>
+
+            <div class="doc-name">
+              ${app.docType}
+            </div>
+
+            <div class="doc-meta">
+              ${app.appId}
+              ·
+              ${app.submittedAt}
+            </div>
+
+          </div>
+
+          <div class="doc-status">
+
+            <span class="badge ${badgeClass}">
+              ${badgeText}
+            </span>
+
+          </div>
+
+        </div>
+
+      `;
+        });
+      }
+
+      /* =========================
+     INITIAL LOAD
+  ========================= */
+
+      loadDashboard();
+    </script>
+  </body>
+</html>

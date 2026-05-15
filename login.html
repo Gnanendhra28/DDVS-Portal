@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>DDVS Login</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      body {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+        min-height: 100vh;
+      }
+
+      .auth-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 24px;
+      }
+
+      .auth-card {
+        width: 100%;
+        max-width: 480px;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+      }
+
+      .auth-header {
+        background: var(--navy);
+        color: white;
+        padding: 24px;
+        text-align: center;
+      }
+
+      .auth-header h2 {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 28px;
+        margin-bottom: 6px;
+      }
+
+      .tab-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .tab-btn {
+        padding: 16px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        background: #f1f5fa;
+        transition: 0.3s;
+      }
+
+      .tab-btn.active {
+        background: white;
+        color: var(--blue-mid);
+      }
+
+      .tab-content {
+        padding: 30px;
+      }
+
+      .tab-panel {
+        display: none;
+      }
+
+      .tab-panel.active {
+        display: block;
+      }
+
+      .success-box {
+        background: #e8f7f0;
+        color: var(--success);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .error-box {
+        background: #fdeaec;
+        color: var(--danger);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2>🇮🇳 DDVS Portal</h2>
+
+          <p>Digital Document Verification System</p>
+        </div>
+
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchTab('login', this)">
+            Login
+          </button>
+
+          <button class="tab-btn" onclick="switchTab('register', this)">
+            Register
+          </button>
+        </div>
+
+        <div class="tab-content">
+          <!-- LOGIN -->
+
+          <div class="tab-panel active" id="tab-login">
+            <div class="success-box" id="loginSuccess">Login Successful</div>
+
+            <div class="error-box" id="loginError"></div>
+
+            <div class="form-group">
+              <label class="form-label"> Email </label>
+
+              <input
+                type="text"
+                class="form-control"
+                id="loginMobile"
+                placeholder="Enter Email id"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"> Password </label>
+
+              <input
+                type="password"
+                class="form-control"
+                id="loginPassword"
+                placeholder="Enter password"
+              />
+            </div>
+
+            <button
+              class="btn btn-primary"
+              style="width: 100%"
+              onclick="loginUser()"
+            >
+              Login
+            </button>
+          </div>
+
+          <!-- REGISTER -->
+
+          <div class="tab-panel" id="tab-register">
+            <div class="success-box" id="registerSuccess">
+              Registration Successful
+            </div>
+
+            <div class="error-box" id="registerError"></div>
+
+            <div class="form-group">
+              <label class="form-label"> Full Name </label>
+
+              <input
+                type="text"
+                class="form-control"
+                id="registerName"
+                placeholder="Enter full name"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"> Email </label>
+
+              <input
+                type="text"
+                class="form-control"
+                id="registerMobile"
+                placeholder="Enter Email id"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"> Password </label>
+
+              <input
+                type="password"
+                class="form-control"
+                id="registerPassword"
+                placeholder="Create password"
+              />
+            </div>
+
+            <button
+              class="btn btn-accent"
+              style="width: 100%"
+              onclick="registerUser()"
+            >
+              Create Account
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      /* =========================
+     IMPORT FIREBASE AUTH
+  ========================= */
+
+      import { auth } from "./firebase.js";
+
+      import {
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+      /* =========================
+     TAB SWITCH
+  ========================= */
+
+      function switchTab(tab, btn) {
+        document.querySelectorAll(".tab-btn").forEach((b) => {
+          b.classList.remove("active");
+        });
+
+        document.querySelectorAll(".tab-panel").forEach((p) => {
+          p.classList.remove("active");
+        });
+
+        btn.classList.add("active");
+
+        document.getElementById("tab-" + tab).classList.add("active");
+      }
+
+      window.switchTab = switchTab;
+
+      /* =========================
+     SHOW ERROR
+  ========================= */
+
+      function showError(id, message) {
+        const box = document.getElementById(id);
+
+        box.style.display = "block";
+
+        box.textContent = message;
+      }
+
+      /* =========================
+     HIDE MESSAGES
+  ========================= */
+
+      function hideMessages() {
+        document.querySelectorAll(".error-box,.success-box").forEach((box) => {
+          box.style.display = "none";
+        });
+      }
+
+      /* =========================
+     REGISTER USER
+  ========================= */
+
+      async function registerUser() {
+        hideMessages();
+
+        const name = document.getElementById("registerName").value.trim();
+
+        const email = document.getElementById("registerMobile").value.trim();
+
+        const password = document
+          .getElementById("registerPassword")
+          .value.trim();
+
+        // VALIDATION
+
+        if (name === "" || email === "" || password === "") {
+          showError("registerError", "Please fill all fields");
+
+          return;
+        }
+
+        if (password.length < 6) {
+          showError("registerError", "Password must be at least 6 characters");
+
+          return;
+        }
+
+        try {
+          // FIREBASE REGISTER
+
+          await createUserWithEmailAndPassword(auth, email, password);
+
+          // SUCCESS
+
+          document.getElementById("registerSuccess").style.display = "block";
+
+          // RESET
+
+          document.getElementById("registerName").value = "";
+
+          document.getElementById("registerMobile").value = "";
+
+          document.getElementById("registerPassword").value = "";
+        } catch (error) {
+          showError("registerError", error.message);
+        }
+      }
+
+      window.registerUser = registerUser;
+
+      /* =========================
+     LOGIN USER
+  ========================= */
+
+      async function loginUser() {
+        hideMessages();
+
+        const email = document.getElementById("loginMobile").value.trim();
+
+        const password = document.getElementById("loginPassword").value.trim();
+
+        // VALIDATION
+
+        if (email === "" || password === "") {
+          showError("loginError", "Please fill all fields");
+
+          return;
+        }
+
+        try {
+          // FIREBASE LOGIN
+
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password,
+          );
+
+          // STORE USER
+
+          localStorage.setItem(
+            "loggedInUser",
+
+            JSON.stringify(userCredential.user),
+          );
+
+          // SUCCESS
+
+          document.getElementById("loginSuccess").style.display = "block";
+
+          // REDIRECT
+
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 1000);
+        } catch (error) {
+          showError("loginError", "Invalid email or password");
+        }
+      }
+
+      window.loginUser = loginUser;
+    </script>
+  </body>
+</html>

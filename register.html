@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Register - DDVS</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div
+      style="
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f4f6fa;
+        padding: 20px;
+      "
+    >
+      <div
+        style="
+          background: white;
+          width: 100%;
+          max-width: 450px;
+          padding: 40px;
+          border-radius: 18px;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+        "
+      >
+        <h2 style="margin-bottom: 10px; color: #0a1628">Create Account</h2>
+
+        <p style="color: #6b7a8d; margin-bottom: 30px">
+          Register to access DDVS Portal
+        </p>
+
+        <!-- EMAIL -->
+
+        <div class="form-group">
+          <label class="form-label"> Email </label>
+
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            placeholder="Enter email"
+          />
+        </div>
+
+        <!-- PASSWORD -->
+
+        <div class="form-group">
+          <label class="form-label"> Password </label>
+
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            placeholder="Enter password"
+          />
+        </div>
+
+        <!-- BUTTON -->
+
+        <button
+          class="btn btn-primary btn-lg"
+          onclick="registerUser()"
+          style="width: 100%"
+        >
+          Register
+        </button>
+
+        <p style="margin-top: 20px; text-align: center">
+          Already have an account?
+
+          <a href="login.html"> Login </a>
+        </p>
+      </div>
+    </div>
+
+    <!-- FIREBASE SCRIPT -->
+
+    <script type="module">
+      import { auth } from "./firebase.js";
+
+      import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+      async function registerUser() {
+        const email = document.getElementById("email").value.trim();
+
+        const password = document.getElementById("password").value.trim();
+
+        // VALIDATION
+
+        if (email === "" || password === "") {
+          alert("Please fill all fields");
+
+          return;
+        }
+
+        if (password.length < 6) {
+          alert("Password must be at least 6 characters");
+
+          return;
+        }
+
+        try {
+          // REGISTER USER
+
+          await createUserWithEmailAndPassword(auth, email, password);
+
+          alert("Registration Successful");
+
+          // REDIRECT
+
+          window.location.href = "login.html";
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+
+      // GLOBAL FUNCTION
+
+      window.registerUser = registerUser;
+    </script>
+  </body>
+</html>

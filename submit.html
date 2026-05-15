@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Submit Documents - DDVS</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      .submit-wrapper {
+        padding: 40px 24px;
+      }
+
+      .submit-container {
+        max-width: 900px;
+        margin: auto;
+      }
+
+      .upload-box {
+        border: 2px dashed var(--blue-mid);
+        padding: 40px;
+        border-radius: 12px;
+        text-align: center;
+        background: white;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .upload-box:hover {
+        background: #f8fbff;
+      }
+
+      .upload-box input {
+        display: none;
+      }
+
+      .preview-area {
+        margin-top: 20px;
+      }
+
+      .preview-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border: 1px solid var(--gray-light);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+
+    <nav>
+      <div class="nav-inner">
+        <a href="index.html" class="nav-brand">
+          <div class="nav-emblem">🇮🇳</div>
+
+          <div>
+            <div class="nav-title">DDVS Portal</div>
+
+            <div class="nav-subtitle">Digital Document Verification System</div>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li>
+            <a href="index.html"> Home </a>
+          </li>
+
+          <li>
+            <a href="submit.html" class="active"> Submit Documents </a>
+          </li>
+
+          <li>
+            <a href="track.html"> Track Status </a>
+          </li>
+
+          <li>
+            <a href="dashboard.html"> Dashboard </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- PAGE HEADER -->
+
+    <div class="page-banner">
+      <div class="page-banner-inner">
+        <div class="breadcrumb">
+          <a href="index.html"> Home </a>
+
+          <span>›</span>
+
+          <span> Submit Documents </span>
+        </div>
+
+        <h1>Document Submission Portal</h1>
+
+        <p>Submit your government applications online securely.</p>
+      </div>
+    </div>
+
+    <!-- FORM -->
+
+    <div class="submit-wrapper">
+      <div class="submit-container">
+        <div class="card">
+          <div class="card-header">
+            <h3>New Application</h3>
+
+            <p>Fill application details carefully</p>
+          </div>
+
+          <div class="card-body">
+            <!-- NAME -->
+
+            <div class="form-group">
+              <label class="form-label"> Applicant Name </label>
+
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                placeholder="Enter full name"
+              />
+            </div>
+
+            <!-- GRID -->
+
+            <div class="grid-2">
+              <!-- DOC TYPE -->
+
+              <div class="form-group">
+                <label class="form-label"> Document Type </label>
+
+                <select class="form-control" id="docType">
+                  <option>Income Certificate</option>
+
+                  <option>Caste Certificate</option>
+
+                  <option>Residence Certificate</option>
+
+                  <option>Land Records</option>
+                </select>
+              </div>
+
+              <!-- AADHAAR -->
+
+              <div class="form-group">
+                <label class="form-label"> Aadhaar Number </label>
+
+                <input
+                  type="text"
+                  class="form-control"
+                  id="aadhaar"
+                  placeholder="Enter 12 digit Aadhaar"
+                />
+              </div>
+            </div>
+
+            <!-- FILE UPLOAD -->
+
+            <div class="form-group">
+              <label class="form-label"> Upload Documents </label>
+
+              <label class="upload-box">
+                📄 Click to Upload Files
+
+                <input type="file" id="fileUpload" multiple />
+              </label>
+
+              <div class="preview-area" id="previewArea"></div>
+            </div>
+
+            <!-- BUTTON -->
+
+            <button
+              class="btn btn-primary btn-lg"
+              onclick="submitApplication()"
+            >
+              Submit Application
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIREBASE SCRIPT -->
+
+    <script type="module">
+      // IMPORT FIREBASE
+
+      import { db } from "./firebase.js";
+
+      import {
+        collection,
+        addDoc,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      // FILE ELEMENTS
+
+      const fileUpload = document.getElementById("fileUpload");
+
+      const previewArea = document.getElementById("previewArea");
+
+      /* =========================
+         FILE PREVIEW
+      ========================= */
+
+      fileUpload.addEventListener("change", () => {
+        previewArea.innerHTML = "";
+
+        [...fileUpload.files].forEach((file) => {
+          const div = document.createElement("div");
+
+          div.className = "preview-item";
+
+          div.innerHTML = `
+
+            <span>
+              ${file.name}
+            </span>
+
+            <span>
+              ${(file.size / 1024).toFixed(1)} KB
+            </span>
+
+          `;
+
+          previewArea.appendChild(div);
+        });
+      });
+
+      /* =========================
+         SUBMIT APPLICATION
+      ========================= */
+
+      async function submitApplication() {
+        // GET VALUES
+
+        const name = document.getElementById("name").value.trim();
+
+        const docType = document.getElementById("docType").value;
+
+        const aadhaar = document.getElementById("aadhaar").value.trim();
+
+        const files = fileUpload.files;
+
+        /* =========================
+           VALIDATIONS
+        ========================= */
+
+        // EMPTY FIELDS
+
+        if (name === "" || aadhaar === "") {
+          alert("Please enter your details.");
+
+          return;
+        }
+
+        // NAME VALIDATION
+
+        const nameRegex = /^[A-Za-z ]+$/;
+
+        if (!nameRegex.test(name)) {
+          alert("Applicant name should contain only letters.");
+
+          return;
+        }
+
+        // AADHAAR ONLY NUMBERS
+
+        const aadhaarRegex = /^[0-9]+$/;
+
+        if (!aadhaarRegex.test(aadhaar)) {
+          alert("Aadhaar number should contain only numbers.");
+
+          return;
+        }
+
+        // AADHAAR LENGTH
+
+        if (aadhaar.length !== 12) {
+          alert("Aadhaar number must be exactly 12 digits.");
+
+          return;
+        }
+
+        // FILE REQUIRED
+
+        if (files.length === 0) {
+          alert("Please upload at least one document.");
+
+          return;
+        }
+
+        // FILE SIZE CHECK
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+
+          const maxSize = 1024 * 1024; // 1MB
+
+          if (file.size > maxSize) {
+            alert(file.name + " exceeds 1MB file size limit.");
+
+            return;
+          }
+        }
+
+        /* =========================
+           CREATE APPLICATION
+        ========================= */
+
+        const appId = "APP-" + Math.floor(Math.random() * 100000);
+
+        const application = {
+          appId: appId,
+
+          name: name,
+
+          aadhaar: aadhaar,
+
+          docType: docType,
+
+          status: "Pending",
+
+          submittedAt: new Date().toLocaleString(),
+        };
+
+        /* =========================
+           SAVE TO FIREBASE
+        ========================= */
+
+        try {
+          await addDoc(
+            collection(db, "applications"),
+
+            application,
+          );
+
+          /* SUCCESS */
+
+          alert(
+            "Application Submitted Successfully!\n\n" +
+              "Application ID: " +
+              appId,
+          );
+
+          /* RESET */
+
+          document.getElementById("name").value = "";
+
+          document.getElementById("aadhaar").value = "";
+
+          document.getElementById("docType").selectedIndex = 0;
+
+          fileUpload.value = "";
+
+          previewArea.innerHTML = "";
+
+          /* REDIRECT */
+
+          window.location.href = "index.html";
+        } catch (error) {
+          console.error(error);
+
+          alert("Error submitting application.");
+        }
+      }
+
+      // MAKE FUNCTION GLOBAL
+
+      window.submitApplication = submitApplication;
+    </script>
+  </body>
+</html>

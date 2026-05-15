@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Application Dashboard - DDVS</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      body {
+        background:
+          linear-gradient(rgba(6, 18, 45, 0.95), rgba(6, 18, 45, 0.95)),
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 39px,
+            rgba(255, 255, 255, 0.03) 40px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 39px,
+            rgba(255, 255, 255, 0.03) 40px
+          );
+
+        min-height: 100vh;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        padding: 40px 20px;
+      }
+
+      /* =========================
+       DASHBOARD
+    ========================= */
+
+      .dashboard-card {
+        width: 100%;
+        max-width: 1100px;
+
+        background: #132f63;
+
+        border: 1px solid rgba(255, 255, 255, 0.08);
+
+        border-radius: 35px;
+
+        padding: 40px;
+
+        box-shadow:
+          0 10px 40px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+
+      /* HEADER */
+
+      .dashboard-header {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+
+        padding-bottom: 30px;
+
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .dashboard-icon {
+        width: 90px;
+        height: 90px;
+
+        background: #c89a35;
+
+        border-radius: 22px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        font-size: 42px;
+      }
+
+      .dashboard-header h1 {
+        color: white;
+        font-size: 46px;
+        margin-bottom: 10px;
+      }
+
+      .dashboard-header p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 24px;
+      }
+
+      /* APPLICATIONS */
+
+      .applications {
+        margin-top: 35px;
+
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+
+      .application-card {
+        background: rgba(255, 255, 255, 0.04);
+
+        border: 1px solid rgba(255, 255, 255, 0.08);
+
+        border-radius: 22px;
+
+        padding: 28px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        transition: 0.3s;
+      }
+
+      .application-card:hover {
+        transform: translateY(-3px);
+
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .app-left {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+
+      .app-icon {
+        font-size: 48px;
+      }
+
+      .app-details h2 {
+        color: white;
+        font-size: 34px;
+        margin-bottom: 8px;
+      }
+
+      .app-details p {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 22px;
+      }
+
+      /* STATUS */
+
+      .status {
+        padding: 16px 30px;
+
+        border-radius: 999px;
+
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .pending {
+        background: #fff1d6;
+        color: #b56d00;
+      }
+
+      .approved {
+        background: #dff5e7;
+        color: #16784d;
+      }
+
+      .review {
+        background: #dfe9ff;
+        color: #1f5fbf;
+      }
+
+      /* PROGRESS */
+
+      .progress-box {
+        margin-top: 40px;
+
+        background: rgba(255, 255, 255, 0.04);
+
+        border-radius: 22px;
+
+        padding: 30px;
+      }
+
+      .progress-box h3 {
+        color: rgba(255, 255, 255, 0.55);
+
+        font-size: 24px;
+
+        margin-bottom: 28px;
+
+        letter-spacing: 1px;
+      }
+
+      .progress-steps {
+        display: flex;
+        gap: 12px;
+      }
+
+      .step {
+        flex: 1;
+
+        height: 14px;
+
+        border-radius: 50px;
+
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .active {
+        background: #d4a73d;
+      }
+
+      .current {
+        background: #2d8cff;
+      }
+
+      /* RESPONSIVE */
+
+      @media (max-width: 768px) {
+        .dashboard-card {
+          padding: 25px;
+        }
+
+        .dashboard-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .dashboard-header h1 {
+          font-size: 34px;
+        }
+
+        .dashboard-header p {
+          font-size: 18px;
+        }
+
+        .application-card {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 20px;
+        }
+
+        .app-details h2 {
+          font-size: 24px;
+        }
+
+        .app-details p {
+          font-size: 16px;
+        }
+
+        .status {
+          font-size: 18px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- DASHBOARD -->
+
+    <div class="dashboard-card">
+      <!-- HEADER -->
+
+      <div class="dashboard-header">
+        <div class="dashboard-icon">📋</div>
+
+        <div>
+          <h1>Application Dashboard</h1>
+          <p>Ward Secretariat Portal</p>
+        </div>
+      </div>
+
+      <!-- APPLICATION LIST -->
+
+      <div class="applications">
+        <!-- CARD 1 -->
+
+        <div class="application-card">
+          <div class="app-left">
+            <div class="app-icon">🪪</div>
+
+            <div class="app-details">
+              <h2>Income Certificate</h2>
+              <p>APP-2024-00841 · Submitted 3h ago</p>
+            </div>
+          </div>
+
+          <div class="status pending">⏳ Pending</div>
+        </div>
+
+        <!-- CARD 2 -->
+
+        <div class="application-card">
+          <div class="app-left">
+            <div class="app-icon">🏠</div>
+
+            <div class="app-details">
+              <h2>Residence Certificate</h2>
+              <p>APP-2024-00839 · Submitted 1d ago</p>
+            </div>
+          </div>
+
+          <div class="status approved">✓ Approved</div>
+        </div>
+
+        <!-- CARD 3 -->
+
+        <div class="application-card">
+          <div class="app-left">
+            <div class="app-icon">🎓</div>
+
+            <div class="app-details">
+              <h2>Caste Certificate</h2>
+              <p>APP-2024-00835 · Submitted 2d ago</p>
+            </div>
+          </div>
+
+          <div class="status review">🔍 Review</div>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+
+      <div class="progress-box">
+        <h3>VERIFICATION PROGRESS — APP-2024-00841</h3>
+
+        <div class="progress-steps">
+          <div class="step active"></div>
+
+          <div class="step active"></div>
+
+          <div class="step current"></div>
+
+          <div class="step"></div>
+
+          <div class="step"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
