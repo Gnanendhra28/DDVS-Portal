@@ -394,20 +394,93 @@
       .cta-section .btn {
         margin-top: 28px;
       }
+      /* =========================
+   MOBILE NAVBAR
+========================= */
+
+      .menu-toggle {
+        display: none;
+        font-size: 32px;
+        color: white;
+        cursor: pointer;
+      }
+
+      /* MOBILE VIEW */
+
+      @media (max-width: 768px) {
+        .nav-inner {
+          position: relative;
+        }
+
+        .menu-toggle {
+          display: block;
+        }
+
+        .nav-links {
+          display: none;
+          flex-direction: column;
+          position: absolute;
+          top: 70px;
+          right: 0;
+          width: 240px;
+          background: #071a35;
+          padding: 20px;
+          border-radius: 12px;
+          gap: 16px;
+          z-index: 999;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .nav-links li {
+          width: 100%;
+        }
+
+        .nav-links a {
+          width: 100%;
+          display: block;
+        }
+
+        .hero-inner {
+          grid-template-columns: 1fr;
+        }
+
+        .hero h1 {
+          font-size: 54px;
+        }
+
+        .step-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-stats {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
+    <!-- NAV -->
     <!-- NAV -->
     <nav>
       <div class="nav-inner">
         <a href="index.html" class="nav-brand">
           <div class="nav-emblem">🇮🇳</div>
+
           <div>
             <div class="nav-title">DDVS Portal</div>
             <div class="nav-subtitle">Digital Document Verification System</div>
           </div>
         </a>
-        <ul class="nav-links">
+
+        <!-- HAMBURGER BUTTON -->
+        <div class="menu-toggle" id="menuToggle">☰</div>
+
+        <!-- NAV LINKS -->
+        <ul class="nav-links" id="navLinks">
           <li><a href="index.html" class="active">Home</a></li>
           <li><a href="submit.html">Submit Documents</a></li>
           <li><a href="track.html">Track Status</a></li>
@@ -797,6 +870,20 @@
         </div>
       </div>
     </footer>
+    <script>
+      /* =========================
+     MOBILE NAVBAR TOGGLE
+  ========================= */
+
+      const menuToggle = document.getElementById("menuToggle");
+
+      const navLinks = document.getElementById("navLinks");
+
+      menuToggle.addEventListener("click", () => {
+        navLinks.classList.toggle("active");
+      });
+    </script>
+
     <script type="module">
       /* =========================
      IMPORT FIREBASE
@@ -814,115 +901,125 @@
   ========================= */
 
       async function loadDashboard() {
-        // GET ELEMENTS
+        try {
+          // GET ELEMENTS
 
-        const dashboard = document.getElementById("dashboardApplications");
+          const dashboard = document.getElementById("dashboardApplications");
 
-        const empty = document.getElementById("dashboardEmpty");
+          const empty = document.getElementById("dashboardEmpty");
 
-        dashboard.innerHTML = "";
+          dashboard.innerHTML = "";
 
-        // GET FIREBASE DATA
+          // GET FIREBASE DATA
 
-        const querySnapshot = await getDocs(collection(db, "applications"));
+          const querySnapshot = await getDocs(collection(db, "applications"));
 
-        let applications = [];
+          let applications = [];
 
-        querySnapshot.forEach((docData) => {
-          applications.push(docData.data());
-        });
+          querySnapshot.forEach((docData) => {
+            applications.push(docData.data());
+          });
 
-        // EMPTY STATE
+          // EMPTY STATE
 
-        if (applications.length === 0) {
+          if (applications.length === 0) {
+            empty.style.display = "block";
+
+            return;
+          }
+
+          empty.style.display = "none";
+
+          // SHOW LATEST 3 APPLICATIONS
+
+          const latestApps = applications.slice(-3).reverse();
+
+          latestApps.forEach((app) => {
+            /* =========================
+           STATUS
+        ========================= */
+
+            let badgeClass = "badge-info";
+
+            let badgeText = "🔍 Review";
+
+            if (app.status === "Approved") {
+              badgeClass = "badge-success";
+
+              badgeText = "✓ Approved";
+            } else if (app.status === "Rejected") {
+              badgeClass = "badge-danger";
+
+              badgeText = "✕ Rejected";
+            } else if (app.status === "Pending") {
+              badgeClass = "badge-warning";
+
+              badgeText = "⏳ Pending";
+            }
+
+            /* =========================
+           DOCUMENT ICONS
+        ========================= */
+
+            let icon = "📄";
+
+            if (app.docType === "Income Certificate") {
+              icon = "🪪";
+            } else if (app.docType === "Residence Certificate") {
+              icon = "🏠";
+            } else if (app.docType === "Caste Certificate") {
+              icon = "🎓";
+            } else if (app.docType === "Land Records") {
+              icon = "🌾";
+            }
+
+            /* =========================
+           CREATE CARD
+        ========================= */
+
+            dashboard.innerHTML += `
+
+          <div class="doc-item">
+
+            <div class="doc-icon">
+              ${icon}
+            </div>
+
+            <div>
+
+              <div class="doc-name">
+                ${app.docType}
+              </div>
+
+              <div class="doc-meta">
+                ${app.appId || "APP-ID"}
+                ·
+                ${app.submittedAt || "Recently"}
+              </div>
+
+            </div>
+
+            <div class="doc-status">
+
+              <span class="badge ${badgeClass}">
+                ${badgeText}
+              </span>
+
+            </div>
+
+          </div>
+
+        `;
+          });
+        } catch (error) {
+          console.error("Dashboard Error:", error);
+
+          const empty = document.getElementById("dashboardEmpty");
+
           empty.style.display = "block";
 
-          return;
+          empty.innerHTML = "⚠️ Unable to load applications";
         }
-
-        empty.style.display = "none";
-
-        // SHOW LATEST 3 APPLICATIONS
-
-        const latestApps = applications.slice(-3).reverse();
-
-        latestApps.forEach((app) => {
-          /* =========================
-         STATUS
-      ========================= */
-
-          let badgeClass = "badge-info";
-
-          let badgeText = "🔍 Review";
-
-          if (app.status === "Approved") {
-            badgeClass = "badge-success";
-
-            badgeText = "✓ Approved";
-          } else if (app.status === "Rejected") {
-            badgeClass = "badge-danger";
-
-            badgeText = "✕ Rejected";
-          } else if (app.status === "Pending") {
-            badgeClass = "badge-warning";
-
-            badgeText = "⏳ Pending";
-          }
-
-          /* =========================
-         DOCUMENT ICONS
-      ========================= */
-
-          let icon = "📄";
-
-          if (app.docType === "Income Certificate") {
-            icon = "🪪";
-          } else if (app.docType === "Residence Certificate") {
-            icon = "🏠";
-          } else if (app.docType === "Caste Certificate") {
-            icon = "🎓";
-          } else if (app.docType === "Land Records") {
-            icon = "🌾";
-          }
-
-          /* =========================
-         CREATE CARD
-      ========================= */
-
-          dashboard.innerHTML += `
-
-        <div class="doc-item">
-
-          <div class="doc-icon">
-            ${icon}
-          </div>
-
-          <div>
-
-            <div class="doc-name">
-              ${app.docType}
-            </div>
-
-            <div class="doc-meta">
-              ${app.appId}
-              ·
-              ${app.submittedAt}
-            </div>
-
-          </div>
-
-          <div class="doc-status">
-
-            <span class="badge ${badgeClass}">
-              ${badgeText}
-            </span>
-
-          </div>
-
-        </div>
-
-      `;
-        });
       }
 
       /* =========================
