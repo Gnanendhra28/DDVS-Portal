@@ -314,6 +314,15 @@
             return;
           }
         }
+        window.addEventListener("DOMContentLoaded", () => {
+          const params = new URLSearchParams(window.location.search);
+
+          const docType = params.get("doc");
+
+          if (docType) {
+            document.getElementById("docType").value = docType;
+          }
+        });
 
         /* =========================
            CREATE APPLICATION
@@ -375,6 +384,16 @@
           alert("Error submitting application.");
         }
       }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+
+        const selectedDoc = params.get("doc");
+
+        if (selectedDoc) {
+          document.getElementById("docType").value = selectedDoc;
+        }
+      });
 
       // MAKE FUNCTION GLOBAL
 
